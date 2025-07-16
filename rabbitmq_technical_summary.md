@@ -3,7 +3,7 @@
 
 Hello,
 
-Thank you for sharing the environment dump and additional details. Based on the information provided, here's a breakdown of the likely issues and suggested actions:
+Thanks for sharing the environment dump and additional details. Based on the information provided, here's a breakdown of the likely issues and suggested actions:
 
 ---
 
@@ -64,8 +64,6 @@ These parameters directly impact queue performance and message handling behavior
 4. Validate that the application reconnects and consumes from all queues.
 
 ---
-
-Would you like us to provide an updated `rabbitmq.conf` file with your legacy performance-related parameters included?
 
 Once we align the runtime behavior with your previous system, we expect stability to return across all queues.
 
