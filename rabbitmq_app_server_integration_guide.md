@@ -92,6 +92,3 @@ connection.close()
 - Double-check security group rules and private IP addresses.
 - Verify RabbitMQ service is running using `docker ps` and `docker logs`.
 
----
-
-If needed, we can help validate the connection remotely or assist in building a health check for your app logic.
