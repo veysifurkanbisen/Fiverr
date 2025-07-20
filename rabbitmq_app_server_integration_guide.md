@@ -28,39 +28,72 @@ Your application must use a proper AMQP URI to connect to the RabbitMQ server.
 ### AMQP URI Format:
 
 ```
-amqp://<username>:<password>@<rabbitmq-server-private-ip>:5672
+amqp://<username>:<password>@<rabbitmq-server-address>:5672
 ```
 
 - Replace `<username>` and `<password>` with the actual credentials (e.g., `admin`, `strongpassword123`).
-- Replace `<rabbitmq-server-private-ip>` with the private IP of the EC2 server running RabbitMQ.
+- Replace `<rabbitmq-server-address>` with either:
+  - the private IP of the EC2 server, or
+  - a **hostname (URL)** that resolves to the server’s private IP.
 
-Example:
+### Example:
 
 ```
 amqp://admin:strongpassword123@10.0.2.15:5672
 ```
 
+or with a hostname:
+
+```
+amqp://admin:strongpassword123@rabbitmq.internal:5672
+```
+
 ---
 
-## 3. Connectivity Test (Before Running Code)
+## 3. Using Hostnames (instead of IPs)
+
+Yes, you can use a hostname instead of an IP address as long as:
+
+- The hostname resolves correctly to the RabbitMQ server’s IP address.
+- App servers have a way to resolve that hostname (via DNS or `/etc/hosts`).
+- The security group rules on the RabbitMQ EC2 allow traffic from app servers.
+
+### Options:
+
+- **Recommended**: Use a DNS record (e.g., Route53) that points to the RabbitMQ EC2 instance.
+- **Quick Test Setup**: Add a line in `/etc/hosts` on each app server:
+
+```
+10.0.2.15  rabbitmq.internal
+```
+
+Then connect using:
+
+```
+amqp://admin:strongpassword123@rabbitmq.internal:5672
+```
+
+---
+
+## 4. Connectivity Test (Before Running Code)
 
 From each app server, verify that the RabbitMQ server is reachable on port 5672:
 
 ```bash
-telnet <rabbitmq-server-private-ip> 5672
+telnet <rabbitmq-server-address> 5672
 ```
 
 or
 
 ```bash
-nc -zv <rabbitmq-server-private-ip> 5672
+nc -zv <rabbitmq-server-address> 5672
 ```
 
 If the connection is successful, you're ready to test your producer/consumer application.
 
 ---
 
-## 4. Minimal Python Example for Testing (Pika Library)
+## 5. Minimal Python Example for Testing (Pika Library)
 
 Install Pika:
 
@@ -73,7 +106,7 @@ Create a test script:
 ```python
 import pika
 
-params = pika.URLParameters('amqp://admin:strongpassword123@10.0.2.15:5672')
+params = pika.URLParameters('amqp://admin:strongpassword123@rabbitmq.internal:5672')
 connection = pika.BlockingConnection(params)
 channel = connection.channel()
 channel.queue_declare(queue='test-queue')
@@ -85,7 +118,7 @@ connection.close()
 
 ---
 
-## 5. Common Troubleshooting Tips
+## 6. Common Troubleshooting Tips
 
 - Ensure correct username/password is used.
 - Make sure the queue exists (or use `queue_declare` as above to auto-create).
